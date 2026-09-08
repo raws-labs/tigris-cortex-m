@@ -1,0 +1,10 @@
+build/
+build-*/
+_deps/
+*.o
+*.a
+*.elf
+*.bin
+*.uf2
+*.map
+__pycache__/
