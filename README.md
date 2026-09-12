@@ -42,19 +42,12 @@ cycle count over serial (STM32 ST-LINK VCP) or USB-CDC (RP2350).
 
 ## Deploy your own model
 
-1. Compile and generate a deployment core with the TiGrIS toolchain (see
-   [tigris-ml.dev](https://tigris-ml.dev) for the compiler):
-
-   ```bash
-   tigris compile model.onnx -m <budget> -o model.tgrs
-   tigris codegen model.tgrs --backend cmsis-nn --format core \
-     --output tigris_codegen_core.c --header tigris_codegen_core.h
-   ```
-
-2. Embed the plan: `python tools/bin2c.py model.tgrs model_blob.c --symbol g_tigris_plan`.
-3. Drop `tigris_codegen_core.*` + `model_blob.c` in place of the ones in
-   `examples/ds_cnn/`, size the arenas to your board's SRAM with
-   `-DTIGRIS_APP_FAST_ARENA_BYTES=` / `-DTIGRIS_APP_SLOW_ARENA_BYTES=`, and build.
+Compile a plan, generate a CMSIS-NN deployment core, embed the plan with
+`tools/bin2c.py`, then drop the three generated files in place of the ones in
+`examples/ds_cnn/` and size the arenas with `-DTIGRIS_APP_FAST_ARENA_BYTES=` /
+`-DTIGRIS_APP_SLOW_ARENA_BYTES=`. The [Cortex-M deployment
+tutorial](https://tigris-ml.dev/tutorials/cortex-m-deployment/) walks the whole
+sequence with commands.
 
 The plan's `-m` budget must fit the board's SRAM: the CMSIS-NN fast arena is
 provisioned at the budget, not at the (smaller) activation peak.
