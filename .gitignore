@@ -8,3 +8,8 @@ _deps/
 *.uf2
 *.map
 __pycache__/
+
+# Hide everything else starting with a dot, only whitelist intended ones
+.*
+!.gitignore
+!.github/
