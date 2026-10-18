@@ -6,6 +6,7 @@
 
 #include "tigris.h"
 #include "tigris_executor.h"
+#include "tigris_iface.h"
 #include "tigris_loader.h"
 #include "tigris_mem.h"
 
@@ -18,8 +19,14 @@
 #define TIGRIS_CODEGEN_PLAN_BUDGET_BYTES 65536u
 #define TIGRIS_CODEGEN_WEIGHT_DECOMPRESSION_RESERVE_BYTES 0u
 #define TIGRIS_CODEGEN_CORE_FAST_ARENA_BYTES 65536u
+/* Slow memory the plan needs, model inputs and outputs included. */
+#define TIGRIS_CODEGEN_CORE_SLOW_ARENA_BYTES 544u
 #define TIGRIS_CODEGEN_EXECUTOR_WORKSPACE_BYTES \
     TIGRIS_EXECUTOR_WORKSPACE_BYTES_FOR_LIMITS(13u, 1u, 1u, 0u, 0u)
+/* Variables the model keeps across runs; 0 when it keeps none. A plan with
+ * state runs through tigris_codegen_run_with_state on a buffer of this size,
+ * prepared once with tigris_state_init(), which also resets it. */
+#define TIGRIS_CODEGEN_STATE_BYTES 0u
 
 typedef void (*tigris_codegen_input_init_fn)(
     void *data, uint32_t size_bytes, uint16_t tensor_index, void *user_ctx);
@@ -55,5 +62,11 @@ tigris_exec_error_t tigris_codegen_run(
 tigris_exec_error_t tigris_codegen_run_with_workspace_buffer(
     const tigris_plan_t *plan, tigris_mem_t *mem, tigris_exec_stats_t *stats,
     void *workspace, size_t workspace_size);
+
+/* Plan-sized run that reads and updates the state buffer; required for a
+ * plan with state, valid for any plan. */
+tigris_exec_error_t tigris_codegen_run_with_state(
+    const tigris_plan_t *plan, tigris_mem_t *mem, tigris_exec_stats_t *stats,
+    void *workspace, size_t workspace_size, void *state, size_t state_size);
 
 #endif
