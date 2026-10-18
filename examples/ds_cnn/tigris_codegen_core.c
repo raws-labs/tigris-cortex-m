@@ -110,3 +110,12 @@ tigris_exec_error_t tigris_codegen_run_with_workspace_buffer(
     return tigris_run_with_workspace_buffer(
         plan, mem, tigris_dispatch_kernel_cmsis_nn, NULL, stats, workspace, workspace_size);
 }
+
+tigris_exec_error_t tigris_codegen_run_with_state(
+    const tigris_plan_t *plan, tigris_mem_t *mem, tigris_exec_stats_t *stats,
+    void *workspace, size_t workspace_size, void *state, size_t state_size)
+{
+    return tigris_run_with_state(
+        plan, mem, tigris_dispatch_kernel_cmsis_nn, NULL, stats, workspace, workspace_size,
+        state, state_size);
+}
