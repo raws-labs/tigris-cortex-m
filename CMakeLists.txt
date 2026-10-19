@@ -9,7 +9,7 @@ if(NOT CMAKE_TOOLCHAIN_FILE AND NOT TIGRIS_BOARD STREQUAL "pico2")
         "${CMAKE_CURRENT_SOURCE_DIR}/cmake/toolchains/arm-none-eabi.cmake")
 endif()
 
-project(tigris_cortex_m VERSION 0.1.0 LANGUAGES C ASM)
+project(tigris_cortex_m VERSION 0.2.0 LANGUAGES C ASM)
 
 set(TIGRIS_CM_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
 

@@ -24,4 +24,4 @@ FetchContent_MakeAvailable(cmsis_nn cmsis_core)
 # the `cmsis-nn` target that the runtime's TIGRIS_HAS_CMSIS_NN option links.
 FetchContent_Declare(tigris_runtime
     GIT_REPOSITORY https://github.com/raws-labs/tigris-runtime.git
-    GIT_TAG a3eb2c1bf6263efba16b50a5d1fbcd179793768d)  # pinned runtime
+    GIT_TAG 20011fbf42490e2dd8dc5f9d36b3bb0bec6747fa)  # pinned runtime
