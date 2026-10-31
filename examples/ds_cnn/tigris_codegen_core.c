@@ -14,22 +14,30 @@
 #include <string.h>
 
 #include "tigris_codegen_core.h"
+#ifndef TIGRIS_RUNTIME_VERSION_MAJOR
+#error "these runtime headers predate tigris_input_alloc(), which this generated code calls; build with the runtime of the same TiGrIS release as the compiler"
+#endif
 #include "tigris_kernels_cmsis_nn.h"
 
-static tigris_mem_error_t tigris_codegen_allocate_inputs(
+static tigris_error_t tigris_codegen_allocate_inputs(
     const tigris_plan_t *plan, tigris_mem_t *mem,
     tigris_codegen_input_init_fn init_input, void *user_ctx)
 {
     for (uint8_t i = 0; i < plan->header->num_model_inputs; i++) {
         uint16_t tidx = plan->model_inputs[i];
-        uint32_t size = plan->tensors[tidx].size_bytes;
-        tigris_mem_error_t err = tigris_mem_alloc_slow(mem, tidx, size);
-        if (err != TIGRIS_MEM_OK)
+        tigris_error_t err = tigris_input_alloc(plan, mem, tidx);
+        if (err != TIGRIS_OK)
             return err;
         if (init_input)
-            init_input(mem->tensor_ptrs[tidx], size, tidx, user_ctx);
+            init_input(mem->tensor_ptrs[tidx], plan->tensors[tidx].size_bytes, tidx, user_ctx);
     }
-    return TIGRIS_MEM_OK;
+    return TIGRIS_OK;
+}
+
+/* tigris_mem_init() fails only on a NULL argument or an arena too small to align. */
+static tigris_error_t tigris_codegen_mem_error(tigris_mem_error_t err)
+{
+    return err == TIGRIS_MEM_ERR_OOM ? TIGRIS_ERR_MEM : TIGRIS_ERR_NULL;
 }
 
 tigris_error_t tigris_codegen_load_plan(
@@ -38,7 +46,7 @@ tigris_error_t tigris_codegen_load_plan(
     return tigris_plan_load(plan_data, plan_len, out_plan);
 }
 
-tigris_mem_error_t tigris_codegen_init(
+tigris_error_t tigris_codegen_init(
     const tigris_plan_t *plan, tigris_mem_t *mem,
     void **tensor_ptrs, uint16_t tensor_capacity,
     void *fast_arena, uint32_t fast_arena_size,
@@ -46,7 +54,7 @@ tigris_mem_error_t tigris_codegen_init(
     tigris_codegen_input_init_fn init_input, void *user_ctx)
 {
     if (plan->header->num_tensors > tensor_capacity)
-        return TIGRIS_MEM_ERR_BAD_INDEX;
+        return TIGRIS_ERR_TENSOR_SLOTS;
 
     /* CMSIS-NN reserves scratch from the previous fast arena.  Release that
      * reservation before reinitializing the arena so repeated reset() calls
@@ -59,25 +67,25 @@ tigris_mem_error_t tigris_codegen_init(
         mem, tensor_ptrs, plan->header->num_tensors,
         fast_arena, fast_arena_size, slow_arena, slow_arena_size);
     if (err != TIGRIS_MEM_OK)
-        return err;
+        return tigris_codegen_mem_error(err);
     uint32_t cmsis_fast_required =
         tigris_cmsis_nn_fast_arena_required(plan);
     if (cmsis_fast_required == UINT32_MAX ||
         fast_arena_size < cmsis_fast_required)
-        return TIGRIS_MEM_ERR_OOM;
+        return TIGRIS_ERR_MEM;
     if (tigris_cmsis_nn_prepare(plan, mem) != 0)
-        return TIGRIS_MEM_ERR_OOM;
+        return TIGRIS_ERR_MEM;
 
     return tigris_codegen_allocate_inputs(plan, mem, init_input, user_ctx);
 }
 
-tigris_mem_error_t tigris_codegen_reset(
+tigris_error_t tigris_codegen_reset(
     const tigris_plan_t *plan, tigris_mem_t *mem,
     tigris_codegen_input_init_fn init_input, void *user_ctx)
 {
     if (!plan || !plan->header || !mem || !mem->tensor_ptrs ||
-        !mem->fast_base || !mem->slow_base)
-        return TIGRIS_MEM_ERR_NULL;
+        !mem->fast_base || (!mem->slow_base && mem->slow_size))
+        return TIGRIS_ERR_NULL;
 
     /* Preserve the backend's reservation. CMSIS-NN reduces fast_size in init;
      * reinitializing with that reduced size keeps scratch disjoint from fresh
@@ -86,7 +94,7 @@ tigris_mem_error_t tigris_codegen_reset(
         mem, mem->tensor_ptrs, plan->header->num_tensors,
         mem->fast_base, mem->fast_size, mem->slow_base, mem->slow_size);
     if (err != TIGRIS_MEM_OK)
-        return err;
+        return tigris_codegen_mem_error(err);
     return tigris_codegen_allocate_inputs(plan, mem, init_input, user_ctx);
 }
 
