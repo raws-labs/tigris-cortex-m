@@ -76,12 +76,12 @@ int main(void)
     }
 
     tigris_mem_t mem;
-    tigris_mem_error_t merr = tigris_codegen_init(
+    tigris_error_t ierr = tigris_codegen_init(
         &plan, &mem, s_tensor_ptrs, TIGRIS_CODEGEN_TENSOR_CAPACITY,
         s_fast_arena, fast_size, s_slow_arena, sizeof(s_slow_arena),
         fill_input, NULL);
-    if (merr != TIGRIS_MEM_OK) {
-        printf("mem init failed: %s\n", tigris_mem_error_str(merr));
+    if (ierr != TIGRIS_OK) {
+        printf("mem init failed: %s\n", tigris_error_str(ierr));
         tigris_hal_halt();
     }
 

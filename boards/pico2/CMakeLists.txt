@@ -35,7 +35,7 @@ FetchContent_Declare(cmsis_nn
     SOURCE_SUBDIR __tigris_no_add_subdir__)
 FetchContent_Declare(tigris_runtime
     GIT_REPOSITORY https://github.com/raws-labs/tigris-runtime.git
-    GIT_TAG 20011fbf42490e2dd8dc5f9d36b3bb0bec6747fa
+    GIT_TAG f3de1792eda7d1cea492bed20620aeb49b7a0e59
     SOURCE_SUBDIR __tigris_no_add_subdir__)
 FetchContent_MakeAvailable(cmsis_nn tigris_runtime)
 
@@ -57,9 +57,13 @@ target_include_directories(tigris_firmware PRIVATE
 
 target_compile_definitions(tigris_firmware PRIVATE
     TIGRIS_HAS_CMSIS_NN
-    # RP2350 has 520 KB SRAM; the 64 KB-budget ds_cnn example needs ~64 KB fast.
+    # RP2350 has 520 KB SRAM; the arenas match the STM32 board files.
     TIGRIS_APP_FAST_ARENA_BYTES=73728
     TIGRIS_APP_SLOW_ARENA_BYTES=16384)
+
+# The runtime's own build compiles it with this flag: float results must not
+# depend on whether the compiler fuses multiply-adds.
+set_source_files_properties(${RT_SRC} PROPERTIES COMPILE_OPTIONS "-ffp-contract=off")
 
 # Vendor code (CMSIS-NN): silence its warnings, do not fail the build on them.
 set_source_files_properties(${NN_SRC} PROPERTIES COMPILE_OPTIONS "-w")

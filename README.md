@@ -49,8 +49,9 @@ Compile a plan, generate a CMSIS-NN deployment core, embed the plan with
 tutorial](https://tigris-ml.dev/tutorials/cortex-m-deployment/) walks the whole
 sequence with commands.
 
-The plan's `-m` budget must fit the board's SRAM: the CMSIS-NN fast arena is
-provisioned at the budget, not at the (smaller) activation peak.
+The fast arena must hold the plan's scheduled peak plus the CMSIS-NN scratch,
+which `tigris_cmsis_nn_fast_arena_required()` returns; the `-m` budget is the
+bound the compiler checked that peak against.
 
 ## Porting a board
 

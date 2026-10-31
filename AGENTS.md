@@ -17,7 +17,7 @@ Board bring-up and CMSIS-NN link glue for running TiGrIS plans on Cortex-M: NUCL
 
 ## Gotchas
 - The runtime commit is pinned in three files that must move together: `cmake/deps.cmake`, `boards/pico2/CMakeLists.txt`, `boards/host/CMakeLists.txt`.
-- The CMSIS-NN fast arena is provisioned at the plan's `-m` budget, not at the smaller activation peak, so the budget itself must fit the board SRAM.
+- The CMSIS-NN fast arena is provisioned at the plan's scheduled peak plus the CMSIS-NN scratch (`tigris_cmsis_nn_fast_arena_required()`), not at the `-m` budget.
 - `-O2` is the measured optimum for CMSIS-NN on Cortex-M7; `-O3` and `-Ofast` are slower (I-cache eviction). `CMSIS_NN_OPT` overrides it; the pico2 project forces `-O2` before `pico_sdk_init` because pico-sdk defaults Release to `-O3`.
 - H753: arenas and `.bss` live in AXI SRAM (512 KB), stack in DTCM (`stm32h753zi.ld`); clock_init targets 480 MHz off PLL1 with an HSI 64 MHz fallback, and `tigris_hal_clock_diag()` reports which was reached.
 - Pico 2 compiles the runtime and CMSIS-NN sources directly into the firmware (pico-sdk convention) instead of linking the runtime library.
