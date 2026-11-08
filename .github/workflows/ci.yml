@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  host:
+    name: Host build and compiler schema
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Build the portable layer against the pinned runtime
+        run: cmake -S boards/host -B build-host && cmake --build build-host
+      - name: Pinned runtime accepts the latest compiler's plan schema
+        run: |
+          python -m pip install --quiet tigris-ml
+          schema=$(python -c 'import tigris; print(tigris.SCHEMA_VERSION)')
+          version=$(python -c 'import tigris; print(tigris.__version__)')
+          echo "tigris-ml $version emits plan schema $schema"
+          printf '#include "tigris.h"\n_Static_assert(TIGRIS_SCHEMA_VERSION_MIN <= SCHEMA && SCHEMA <= TIGRIS_SCHEMA_VERSION, "the pinned runtime refuses plans of this schema");\n' \
+            | cc -std=c11 -fsyntax-only -DSCHEMA="$schema" \
+                -I build-host/_deps/tigris_runtime-src/include -x c -
