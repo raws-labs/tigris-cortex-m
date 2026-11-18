@@ -7,11 +7,12 @@ include(FetchContent)
 
 # CMSIS-NN and CMSIS-Core are fetched as SOURCES ONLY. SOURCE_SUBDIR points at a
 # nonexistent directory so FetchContent_MakeAvailable populates the trees without
-# add_subdirectory'ing their own CMake projects; we build our own `cmsis-nn`
-# target from these sources in cmake/cmsis_nn.cmake.
+# add_subdirectory'ing their own CMake projects; cmake/cmsis_nn.cmake adds
+# CMSIS-NN's project itself, with the optimization level and include settings
+# the runtime needs.
 FetchContent_Declare(cmsis_nn
     GIT_REPOSITORY https://github.com/ARM-software/CMSIS-NN.git
-    GIT_TAG 6d9d61d8a586c39160d0c1ba58f6948e4cf61ad0  # v7.0.0, matches TFLM's pin
+    GIT_TAG 13c97dbb6f781d4aab38ed34e6e441f42b79aff4  # v8.0.0
     SOURCE_SUBDIR __tigris_no_add_subdir__)
 FetchContent_Declare(cmsis_core
     GIT_REPOSITORY https://github.com/ARM-software/CMSIS_6.git
@@ -24,4 +25,4 @@ FetchContent_MakeAvailable(cmsis_nn cmsis_core)
 # the `cmsis-nn` target that the runtime's TIGRIS_HAS_CMSIS_NN option links.
 FetchContent_Declare(tigris_runtime
     GIT_REPOSITORY https://github.com/raws-labs/tigris-runtime.git
-    GIT_TAG 421bf5b4a6ce47739eb1488859a1225315d64e2c)  # pinned runtime
+    GIT_TAG 65c4d6290a1959c7f956e0b492a8997dd20fda06)  # pinned runtime
