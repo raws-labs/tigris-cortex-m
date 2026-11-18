@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.25)
 
 # A cross toolchain must be selected at configure time. STM32 boards and the
 # no-board "spine" build use the bundled generic arm-none-eabi toolchain; pico2
@@ -9,7 +9,7 @@ if(NOT CMAKE_TOOLCHAIN_FILE AND NOT TIGRIS_BOARD STREQUAL "pico2")
         "${CMAKE_CURRENT_SOURCE_DIR}/cmake/toolchains/arm-none-eabi.cmake")
 endif()
 
-project(tigris_cortex_m VERSION 0.4.0 LANGUAGES C ASM)
+project(tigris_cortex_m VERSION 0.5.0 LANGUAGES C ASM)
 
 set(TIGRIS_CM_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
 

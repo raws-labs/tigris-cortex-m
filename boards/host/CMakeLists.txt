@@ -16,7 +16,7 @@ set(_root ${CMAKE_CURRENT_LIST_DIR}/../..)
 include(FetchContent)
 FetchContent_Declare(tigris_runtime
     GIT_REPOSITORY https://github.com/raws-labs/tigris-runtime.git
-    GIT_TAG 421bf5b4a6ce47739eb1488859a1225315d64e2c
+    GIT_TAG 65c4d6290a1959c7f956e0b492a8997dd20fda06
     SOURCE_SUBDIR __tigris_no_add_subdir__)
 FetchContent_MakeAvailable(tigris_runtime)
 
