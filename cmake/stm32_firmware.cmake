@@ -33,9 +33,12 @@ function(tigris_add_stm32_firmware)
         ${cmsis_core_SOURCE_DIR}/CMSIS/Core/Include
         ${_dev}/Include)
 
+    # The board file's sizes are the defaults; -D on the cmake line overrides them.
+    set(TIGRIS_APP_FAST_ARENA_BYTES ${FW_FAST} CACHE STRING "Fast arena the firmware reserves, in bytes")
+    set(TIGRIS_APP_SLOW_ARENA_BYTES ${FW_SLOW} CACHE STRING "Slow arena the firmware reserves, in bytes")
     target_compile_definitions(tigris_firmware PRIVATE
-        TIGRIS_APP_FAST_ARENA_BYTES=${FW_FAST}
-        TIGRIS_APP_SLOW_ARENA_BYTES=${FW_SLOW})
+        TIGRIS_APP_FAST_ARENA_BYTES=${TIGRIS_APP_FAST_ARENA_BYTES}
+        TIGRIS_APP_SLOW_ARENA_BYTES=${TIGRIS_APP_SLOW_ARENA_BYTES})
 
     target_link_libraries(tigris_firmware PRIVATE tigris_runtime cmsis-nn)
 

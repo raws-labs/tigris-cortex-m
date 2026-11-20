@@ -62,11 +62,14 @@ target_include_directories(tigris_firmware PRIVATE
     ${_root}/examples/ds_cnn
     ${tigris_runtime_SOURCE_DIR}/include)
 
+# RP2350 has 520 KB SRAM; the default arenas match the STM32 board files, and
+# -D on the cmake line overrides them.
+set(TIGRIS_APP_FAST_ARENA_BYTES 73728 CACHE STRING "Fast arena the firmware reserves, in bytes")
+set(TIGRIS_APP_SLOW_ARENA_BYTES 16384 CACHE STRING "Slow arena the firmware reserves, in bytes")
 target_compile_definitions(tigris_firmware PRIVATE
     TIGRIS_HAS_CMSIS_NN
-    # RP2350 has 520 KB SRAM; the arenas match the STM32 board files.
-    TIGRIS_APP_FAST_ARENA_BYTES=73728
-    TIGRIS_APP_SLOW_ARENA_BYTES=16384)
+    TIGRIS_APP_FAST_ARENA_BYTES=${TIGRIS_APP_FAST_ARENA_BYTES}
+    TIGRIS_APP_SLOW_ARENA_BYTES=${TIGRIS_APP_SLOW_ARENA_BYTES})
 
 # The runtime's own build compiles it with this flag: float results must not
 # depend on whether the compiler fuses multiply-adds.

@@ -12,7 +12,7 @@ Board bring-up and CMSIS-NN link glue for running TiGrIS plans on Cortex-M: NUCL
 ## Layout
 - `cmake/deps.cmake`: FetchContent pins by exact commit for CMSIS-NN, CMSIS-Core and tigris-runtime; `boards/pico2/CMakeLists.txt` repeats the CMSIS-NN and runtime pins. `cmake/cmsis_nn.cmake` adds CMSIS-NN's own CMake project, which defines the `cmsis-nn` target the runtime links (`TIGRIS_HAS_CMSIS_NN` forced ON). Offline: `-DFETCHCONTENT_SOURCE_DIR_<CMSIS_NN|CMSIS_CORE|TIGRIS_RUNTIME|CMSIS_DEVICE_F4|CMSIS_DEVICE_H7>=<path>`.
 - `cmake/boards/<board>.cmake` calls `tigris_add_stm32_firmware()` (`cmake/stm32_firmware.cmake`) with device pack, startup, linker and arena sizes; `src/hal/platform/<board>/` implements `include/tigris_hal.h` (clock, printf UART, cycle counter, halt). Porting a board means one platform dir, one linker script, one board file.
-- `src/app/tigris_app.c`: portable load/run/print flow; arenas are `TIGRIS_APP_FAST_ARENA_BYTES` / `TIGRIS_APP_SLOW_ARENA_BYTES` (defaults 48 KB / 16 KB; board files set 72 KB / 16 KB).
+- `src/app/tigris_app.c`: portable load/run/print flow; arenas are `TIGRIS_APP_FAST_ARENA_BYTES` / `TIGRIS_APP_SLOW_ARENA_BYTES` (defaults 48 KB / 16 KB; board files set 72 KB / 16 KB as CMake cache defaults, which `-D` on the cmake line overrides).
 - `tools/bin2c.py model.tgrs model_blob.c --symbol g_tigris_plan`: embeds a plan as a 16-byte-aligned `.rodata` array for the zero-copy loader.
 
 ## Gotchas
